@@ -1,3 +1,6 @@
+v1.1    Mon Jan 31 20:15:52 CST 2005
+        - allow ^ESC sequence in rule <to> sections
+
 v1.0   Thu Nov 18 11:43:19 CST 2004
         - require at least 5.7.2 for XML encoding support
 

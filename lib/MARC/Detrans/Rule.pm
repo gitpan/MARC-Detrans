@@ -43,6 +43,7 @@ sub new {
     my ( $class, %opts ) = @_;
     croak( "must supply 'from' parameter" ) if ! exists( $opts{from} );
     croak( "must supply 'to' parameter" ) if ! exists( $opts{to} );
+    $opts{to} =~ s/\^ESC/\x1B/g;
     return bless \%opts, ref($class) || $class;
 }
 

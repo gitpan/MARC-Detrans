@@ -30,3 +30,7 @@ is( $rules->error(), 'no matching rule found for "w" [0x77] at position 3',
     'non-existant mapping error message' );
 ok( ! $rules->error(), 'error message erased on retrieval' );
 
+$rules->addRule( MARC::Detrans::Rule->new( from => 'z', to => '^ESCz' ) );
+is( $rules->convert('z'), chr(0x1B).'z', 'rule with ^ESC' );
+
+
