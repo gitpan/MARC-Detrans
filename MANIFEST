@@ -15,6 +15,7 @@ t/marc.dat
 t/names.t
 t/parallel.t
 t/position.t
+t/repeated.t
 t/rules.t
 t/testconfig.xml
 t/translation.t

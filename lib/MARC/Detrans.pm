@@ -5,7 +5,7 @@ use warnings;
 use Carp qw( croak );
 use MARC::Detrans::Config;
 
-our $VERSION = '0.7';
+our $VERSION = '0.8';
 
 =head1 NAME
 
@@ -171,7 +171,9 @@ sub add880s {
                 $self->addError( "field=$tag: skipped because of translation" );
                 next FIELD;
             }
-    
+   
+            ## if it's a field that might contain a name look it up
+            ## to see if it has a non-standard detransliteration
             if ( isNameField($tag) ) {
                 my $nameData = $names->convert( $field );
                 if ( $nameData ) {
@@ -250,6 +252,16 @@ sub add880 {
         @$subfields              ## the reset of the subfields
     );
     $record->insert_grouped_field( $f880 );
+
+    ## now add to the original field
+    ## by creating a new field with the subfield 6
+    ## and replacing the old field with it
+    my @subfields = map { $_->[0], $_->[1] } $field->subfields();
+    unshift( @subfields, '6' => "880-$occurrence" );
+    my $new = MARC::Field->new( 
+        $tag, $field->indicator(1), $field->indicator(2),
+        '6' => "880-$occurrence", @subfields );
+    $field->replace_with( $new );
 }
 
 ## private helper function for adding a 066 indicating which 

@@ -23,4 +23,14 @@ while ( my $record = $batch->next() ) {
     isa_ok( $record, 'MARC::Record' );
     ok( $record->field( '880' ), 'found 880 fields' );
     ok( $record->field( '066' ), 'found 066 field' );
+
+    ## look at 880 and try to find original field and look for subfield
+    ## 6 in it.
+    foreach my $field ( $record->field( '880' ) ) {
+        my $sub6 = $field->subfield(6);
+        my ( $tag, $ocurrence ) = split /-/, $sub6;
+        my @fields = $record->field( $tag );
+        my $f = $fields[$ocurrence-1];
+        ok( $f->subfield('6'), 'found subfield 6 in original field' );
+    }
 }
