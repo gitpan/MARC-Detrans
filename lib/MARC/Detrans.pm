@@ -5,7 +5,7 @@ use warnings;
 use Carp qw( croak );
 use MARC::Detrans::Config;
 
-our $VERSION = '0.9';
+our $VERSION = '0.95';
 
 =head1 NAME
 
@@ -329,7 +329,7 @@ this MARC::Detrans object.
 
 sub stats880sAdded {
     my $self = shift;
-    return $self->{tallyAdd880s};
+    return $self->{tallyAdd880};
 }
 
 =head2 statsDetransliterated()

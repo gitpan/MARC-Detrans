@@ -35,7 +35,8 @@ The location of the MARC input file.
 
 =item * --out
 
-The location to write out the new records.
+The location to write out the new records. If unspecified log messages
+will be sent to STDOUT.
 
 =item * --log
 
@@ -62,6 +63,10 @@ my $detrans = MARC::Detrans->new( config => $config );
 my $batch = MARC::Batch->new( 'USMARC', $in );
 open( OUT, ">$out" );
 
+## redirect to log if necessary
+if ( $log ) { open( LOG, ">$log" ); }
+else { *LOG = *STDOUT; }
+
 ## setup some counters
 my $recordCount = 0;
 my $errorCount = 0;
@@ -73,7 +78,7 @@ while ( my $record = $batch->next() ) {
     ## print out any errors 
     foreach ( $detrans->errors() ) {
         $errorCount++;
-        print STDERR "record $recordCount: $_\n";
+        print LOG "record $recordCount: $_\n";
     }
 
     ## output the new record
@@ -82,19 +87,19 @@ while ( my $record = $batch->next() ) {
 
 ## output summary stats
 
-print "\n\nJOB STATISTICS\n\n";
-printf( "%-17s%10d\n", 'Records Processed', $recordCount );
-printf( "%-17s%10d\n", '880 Fields Added', $detrans->stats880sAdded() );
-printf( "%-17s%10d\n", 'Errors', $errorCount );
+print LOG "\n\nJOB STATISTICS\n\n";
+printf LOG "%-17s%10d\n", 'Records Processed', $recordCount;
+printf LOG "%-17s%10d\n", '880 Fields Added', $detrans->stats880sAdded();
+printf LOG "%-17s%10d\n", 'Errors', $errorCount;
 
 ## statsDetransliterated() returns a hash of statistics
 ## for which field/subfield combinations were transliterated
 ## we will just output them in sorted order
 my %transCounts = $detrans->statsDetransliterated();
 my @sorted = sort { $transCounts{$b} <=> $transCounts{$a} } keys(%transCounts);
-print "\nFields/Subfields Transliterated: \n";
+print LOG "\nFields/Subfields Transliterated: \n";
 foreach ( @sorted ) {
-    printf( "%17s%10d\n", $_, $transCounts{ $_ } );
+    printf LOG "%17s%10d\n", $_, $transCounts{ $_ };
 }
 
 ## statsCopied retuns a similar has of statistics
@@ -102,10 +107,10 @@ foreach ( @sorted ) {
 ## we will just output them in sorted order
 my %copyCounts = $detrans->statsCopied();
 @sorted = sort { $copyCounts{$b} <=> $copyCounts{$a} } keys(%copyCounts);
-print "\nFields/Subfields Copied: \n";
+print LOG "\nFields/Subfields Copied: \n";
 foreach ( @sorted ) {
-    printf( "%17s%10d\n", $_, $copyCounts{ $_ } );
+    printf LOG "%17s%10d\n", $_, $copyCounts{ $_ };
 }
 
-print "\n\n";
+print LOG "\n\n";
 
