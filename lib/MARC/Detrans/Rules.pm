@@ -53,9 +53,16 @@ sub addRule {
     ## this will mean that when we go to use the rules in convert()
     ## that the longest match will occur first.
     push( @$rules, $rule );
-    @$rules = sort { length($b->from()) <=> length($a->from()) } @$rules;
+    @$rules = sort byRule @$rules;
     ## stash away the new rules
     $self->{rules}{$key} = $rules;
+}
+
+sub byRule {
+    return 
+        length( $b->from() . $b->position() ) 
+        <=> 
+        length( $a->from() . $a->position() )
 }
 
 =head2 convert()
@@ -90,6 +97,16 @@ sub convert {
             ## \G anchors the match at our current position
             ## \Q...\E makes sure that metacharacters in our pattern are escaped
             if ( $in =~ m/\G\Q$from\E/ ) {
+                my $position = $rule->position() || '';
+                if ( $position eq 'initial' ) {
+                    next unless isInitial( $in, $pos ); 
+                }
+                elsif ( $position eq 'medial' ) {
+                    next if isInitial( $in, $pos ) or isFinal( $in, $pos );
+                }
+                elsif ( $position eq 'final' ) {
+                    next unless isFinal( $in, $pos );
+                }
                 $foundRule = $rule;
                 last;
             }
@@ -143,5 +160,21 @@ sub error {
 =item * Ed Summers <ehs@pobox.com>
 
 =cut
+
+## helper functions to determine whether a specific positon in a string
+## is at the start or at the end of a word.
+
+sub isInitial {
+    my ($string,$position) = @_;
+    return 1 if $position == 0;
+    return 1 if substr($string,$position-1,1) =~ /\W/;
+    return 0;
+}
+
+sub isFinal {
+    my ($string,$position) = @_;
+    return 1 if $position == length($string)-1;
+    return 1 if substr($string,$position+1,1) =~ /\W/; 
+}
 
 1;

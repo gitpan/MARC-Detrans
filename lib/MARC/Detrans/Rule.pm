@@ -30,6 +30,13 @@ and the corresponding MARC-8 or UTF-8 text, along with an escape character
 
 =head2 new()
 
+Pass in the C<from> and c<to> parameters which define the original text
+and what to translate to; these parameters are not limited to single
+characters. In addition an C<escape> parameter can be passed in to
+indicate a MARC-8 escape sequence to use. Also a C<position> parameter
+can be set to C<initial>, C<medial> or C<final> if the rule applies only
+when the character is found at or within a particular word boundary.
+
 =cut
 
 sub new {
@@ -69,6 +76,20 @@ is for an UTF-8 mapping.
 
 sub escape {
     return shift->{escape};
+}
+
+=head2 position()
+
+Returns a position specification for the rule mapping which can be 
+initial, medial, final or the empty string if there is no positional 
+qualification for the rule.
+
+=cut
+
+sub position {
+    my $p = shift->{position};
+    return $p if defined($p);
+    return ''; 
 }
 
 =head1 AUTHORS

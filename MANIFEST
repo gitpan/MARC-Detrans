@@ -12,6 +12,7 @@ t/config.t
 t/detrans.t
 t/marc.dat
 t/names.t
+t/position.t
 t/rules.t
 t/testconfig.xml
 META.yml                                Module meta-data (added by MakeMaker)

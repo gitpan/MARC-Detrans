@@ -205,6 +205,10 @@
         <roman>M</roman>
         <marc escape="(N">m</marc>
     </rule>
+    <rule position="initial">
+        <roman>M</roman>
+        <marc escape="(N">x</marc>
+    </rule>
     <rule>
         <roman>N</roman>
         <marc escape="(N">n</marc>

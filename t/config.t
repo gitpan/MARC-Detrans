@@ -15,6 +15,10 @@ isa_ok( $rules, 'MARC::Detrans::Rules' );
 is( $rules->convert('bkh'), chr(0x1B) . '(N' . 'BH' . chr(0x1B) . chr(0x28) . 
     chr(0x42) , 'rules convert()' );
 
+## test a rule with a position attribute
+is( $rules->convert('MM'), chr(0x1B) . '(N' . 'xm' . chr(0x1B) . chr(0x28) . 
+    chr(0x42), 'rules convert with position' );
+
 ## test the 1 name rule
 my $names = $config->names();
 isa_ok( $names, 'MARC::Detrans::Names' );

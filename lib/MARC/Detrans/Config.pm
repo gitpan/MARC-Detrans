@@ -200,6 +200,7 @@ sub start_element {
     ## start of rule
     if ( $tag eq 'rule' ) { 
         $self->resetFlags();
+        $self->{currentPosition} = $data->{Attributes}{'{}position'}{Value};
         $self->{insideRule} = 1;;
     }
     ## start of name 
@@ -266,9 +267,10 @@ sub end_element {
     ## end of rule, so build the rule and add it 
     if ( $tag eq 'rule' ) {
         my $rule = MARC::Detrans::Rule->new(
-            from    => $self->{romanText},
-            to      => $self->{marcText},
-            escape  => $self->{currentEscape} 
+            from        => $self->{romanText},
+            to          => $self->{marcText},
+            escape      => $self->{currentEscape},
+            position    => $self->{currentPosition}
         );
         $self->{rules}->addRule( $rule );
         $self->resetFlags();

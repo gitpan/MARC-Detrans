@@ -5,7 +5,7 @@ use warnings;
 use Carp qw( croak );
 use MARC::Detrans::Config;
 
-our $VERSION = '0.3';
+our $VERSION = '0.4';
 
 =head1 NAME
 
@@ -51,7 +51,7 @@ MARC::Detrans behavior is controlled by an XML configuration file. An
 example of this configuration file can be found in the examples directory
 of the MARC::Detrans distribution. The configuration determines the 
 detransliteration rules that will be used to add 880 fields to existing 
-records. It is hoped that people will constribute their configurations 
+records. It is hoped that people will contribute their configurations 
 for various languages to the MARC::Detrans project so that they can 
 be distributed with this package. For more information about the 
 configuration file see L<MARC::Detrans::Config>.
