@@ -5,7 +5,7 @@ use warnings;
 use Carp qw( croak );
 use MARC::Detrans::Config;
 
-our $VERSION = '0.4';
+our $VERSION = '0.5';
 
 =head1 NAME
 
@@ -75,7 +75,7 @@ sub new {
     croak( "must supply config parameter" ) if ! exists $args{config};
     croak( "config file doesn't exist" ) if ! -f $args{config};
     my $config = MARC::Detrans::Config->new( $args{config} );
-    my $self = { config => $config }; 
+    my $self = { config => $config, errors => [] }; 
     return bless $self, ref($class) || $class;
 }
 
