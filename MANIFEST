@@ -1,6 +1,6 @@
 Changes
 example/convert.pl
-example/config.xml
+example/russian.xml
 lib/MARC/Detrans.pm
 lib/MARC/Detrans/Config.pm
 lib/MARC/Detrans/Name.pm
@@ -18,6 +18,7 @@ t/parallel.t
 t/position.t
 t/repeated.t
 t/rules.t
+t/scriptpresent.t
 t/testconfig.xml
 t/translation.t
-META.yml                                Module meta-data (added by MakeMaker)
+META.yml

@@ -5,7 +5,7 @@ use warnings;
 use Carp qw( croak );
 use MARC::Detrans::Config;
 
-our $VERSION = '0.97';
+our $VERSION = '0.99';
 
 =head1 NAME
 
@@ -113,11 +113,12 @@ sub _init {
 =head2 convert()
 
 Pass a MARC::Record into convert() and you will be returned a 
-new MARC::Record with portions of it modified according to your
+the same object with portions of it modified according to your
 configuration file. 
 
-IMPORTANT: you'll probably want to call errors() afterwards to 
-see if there were any problems during the conversion.
+IMPORTANT: if the record was not modified or an error was encountered
+you will be returned undef instead of the MARC::Record object. You 
+will want to use the errors() method for diagnosing what happened.
 
 =cut
 
@@ -127,26 +128,34 @@ sub convert {
         if ! ref($record) or ! $record->isa( 'MARC::Record' );
     my $config = $self->{config};
 
+    ## make sure the script isn't already present
+    if ( $self->scriptAlreadyPresent($record) ) {
+        $self->addError( "target script already present" );
+        return;
+    }
+
     ## check the language of the record
     my $f008 = $record->field( '008' );
     if ( ! $f008 ) { 
         $self->addError( "can't determine language in record: missing 008" );
-        return $record;
+        return;
     }
     my $lang = substr( $f008->data(), 35, 3 );
     if ( $lang ne $config->languageCode() ) {
         $self->addError( "record is not correct language: $lang instead of ". 
             $config->languageCode() ); 
-        return $record;
+        return;
     }
 
-    ## add 880 fields
-    $self->add880s( $record );
+    ## add 880 fields and return if the record was edited
+    return $record if $self->add880s( $record );
 
-    return $record;
+    ## otherwise return undef since the record was not modified
+    return;
 }
 
-## internal helper for adding 880 fields to a record.
+## internal helper for adding 880 fields to a record
+## will return 1 if the record is modified and 0 if it isn't
 
 sub add880s {
     my ($self,$r) = @_;
@@ -226,6 +235,18 @@ sub add880s {
         $self->add066($r);
     }
 
+    return $edited;
+}
+
+sub scriptAlreadyPresent {
+    my ($self,$record ) = @_;
+    my $config = $self->{config};
+    my $f066 = $record->field( '066' );
+    return 0 if ! $f066;
+    foreach my $subfield( $f066->subfields() ) {
+        return 1 if grep { $_ eq $subfield->[1] } $config->allEscapeCodes();
+    }
+    return 0;
 }
 
 sub isNameField {
@@ -311,6 +332,7 @@ sub add066 {
         $record->insert_grouped_field( $f066 );
     }
 }
+
 
 =head2 errors()
 

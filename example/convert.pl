@@ -19,7 +19,11 @@ convert.pl - a sample MARC::Detrans driver
 =head1 DESCRIPTION
 
 This is a sample script that illustrates how to use MARC::Detrans
-for detransliterating MARC records.
+for detransliterating MARC records. It was customized mainly for its
+first user (Queens Borough Public Library) so you may want to change
+stuff in here. Most of what you'll find is code to enable logging,
+MARC::Detrans takes care of the actual detransliteration in a few lines 
+of code.
 
 =head1 OPTIONS
 
@@ -69,47 +73,80 @@ else { *LOG = *STDOUT; }
 
 ## setup some counters
 my $recordCount = 0;
+my $writtenCount = 0;
 my $errorCount = 0;
+my $translationSkip = 0;
+my $parallelSkip = 0;
 
-while ( my $record = $batch->next() ) {
+RECORD: while ( my $record = $batch->next() ) {
     $recordCount++;
+
+    ## here's the magic :)
     my $new = $detrans->convert( $record );
 
     ## print out any errors 
-    foreach ( $detrans->errors() ) {
+    ERROR: foreach my $error ( $detrans->errors() ) {
         $errorCount++;
-        print LOG "record $recordCount: $_\n";
+
+        ## instead of outputting distinct errors about skipped
+        ## fields due to translation and parallel title just 
+        ## keep a running count
+        if ( $error =~ /skipped because of translation/ ) {
+            $translationSkip++;
+            next ERROR;
+        }
+        if ( $error =~ /skipped parallel title/ ) {
+            $parallelSkip++;
+            next ERROR;
+        }
+
+        ## use the 001 for log messages if we can
+        ## otherwise use the message count
+        my $f001 = $record->field('001');
+        if ( $f001 ) { print LOG $f001->data(), ": $error\n"; }
+        else { print "record $recordCount: $error\n"; }
     }
 
-    ## output the new record
-    print OUT $new->as_usmarc();
+    ## output the new record if one was returned 
+    if ( $new ) { 
+        ## add a 940 note indicating we touched this record
+        $new->insert_fields_ordered( 
+            MARC::Field->new( '940', '', '', a => 
+                'Edited by MARC::Detrans at '.localtime())
+        );
+        print OUT $new->as_usmarc();
+        $writtenCount++;
+    }
 }
 
 ## output summary stats
 
 print LOG "\n\nJOB STATISTICS\n\n";
-printf LOG "%-17s%10d\n", 'Records Processed', $recordCount;
-printf LOG "%-17s%10d\n", '880 Fields Added', $detrans->stats880sAdded();
-printf LOG "%-17s%10d\n", 'Errors', $errorCount;
+printf LOG "%-23s%15d\n", 'Records Processed', $recordCount;
+printf LOG "%-23s%15d\n", 'Records Written', $writtenCount;
+printf LOG "%-23s%15d\n", '880 Fields Added', $detrans->stats880sAdded();
+printf LOG "%-23s%15d\n", 'Errors', $errorCount;
+printf LOG "%-23s%15d\n", 'Skipped Parallel Title', $parallelSkip;
+printf LOG "%-23s%15d\n", 'Skipped Translation', $translationSkip;
 
 ## statsDetransliterated() returns a hash of statistics
 ## for which field/subfield combinations were transliterated
 ## we will just output them in sorted order
 my %transCounts = $detrans->statsDetransliterated();
-my @sorted = sort { $transCounts{$b} <=> $transCounts{$a} } keys(%transCounts);
+my @sorted = sort { $a cmp $b } keys(%transCounts);
 print LOG "\nFields/Subfields Transliterated: \n";
 foreach ( @sorted ) {
-    printf LOG "%17s%10d\n", $_, $transCounts{ $_ };
+    printf LOG "%10s%10d\n", $_, $transCounts{ $_ };
 }
 
 ## statsCopied retuns a similar has of statistics
 ## for which field/subfield combinations were copied
 ## we will just output them in sorted order
 my %copyCounts = $detrans->statsCopied();
-@sorted = sort { $copyCounts{$b} <=> $copyCounts{$a} } keys(%copyCounts);
+@sorted = sort { $a cmp $b } keys(%copyCounts);
 print LOG "\nFields/Subfields Copied: \n";
 foreach ( @sorted ) {
-    printf LOG "%17s%10d\n", $_, $copyCounts{ $_ };
+    printf LOG "%10s%10d\n", $_, $copyCounts{ $_ };
 }
 
 print LOG "\n\n";

@@ -12,6 +12,21 @@ To install this module type the following:
    make test
    make install
 
+EXAMPLES
+
+There are sample configuration files and an example driving program
+in the example directory of this distribution. It's hoped that they
+will prove to be starting places for your own de-transliterators, or
+perhaps you can use them as is, with a few tweaks.
+
+THANKYOUS
+
+This software was commissioned by Queens Borough Public Library who
+made it's creation possible, and had the generosity to make the 
+software opensource. Many thanks to Jane Jacobs and Elizabeth Ankerson 
+who expressed how the software should work, and built the configration
+file for Russian.
+
 COPYRIGHT AND LICENCE
 
 Copyright (C) 2004 Ed Summers
