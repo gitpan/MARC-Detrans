@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use Getopt::Long;
+use Pod::Usage;
+use MARC::Detrans::Config;
+use MARC::Detrans::Converter;
+
+my ( $configFile ); 
+GetOptions(
+    'config=s'      => \$configFile,
+);
+
+my $config = MARC::Detrans::Config->new( $configFile );
+

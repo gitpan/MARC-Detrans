@@ -1,0 +1,18 @@
+bin/detrans
+example/convert.pl
+example/config.xml
+lib/MARC/Detrans.pm
+lib/MARC/Detrans/Config.pm
+lib/MARC/Detrans/Name.pm
+lib/MARC/Detrans/Names.pm
+lib/MARC/Detrans/Rule.pm
+lib/MARC/Detrans/Rules.pm
+Makefile.PL
+MANIFEST
+t/config.t
+t/detrans.t
+t/marc.dat
+t/names.t
+t/rules.t
+t/testconfig.xml
+META.yml                                Module meta-data (added by MakeMaker)
