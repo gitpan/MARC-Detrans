@@ -5,7 +5,7 @@ use warnings;
 use Carp qw( croak );
 use MARC::Detrans::Config;
 
-our $VERSION = '0.96';
+our $VERSION = '0.97';
 
 =head1 NAME
 
@@ -295,6 +295,8 @@ sub add066 {
     ## configuration.
     my @subfields;
     foreach ( $config->allEscapeCodes() ) {
+        ## ignore (B
+        next if $_ eq '(B';
         push( @subfields, 'c', $_ );
     }
 

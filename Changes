@@ -1,3 +1,6 @@
+v0.97   Tue Nov  9 21:37:20 CST 2004
+        - don't include $c(B in 066
+
 v0.96   Tue Nov  9 21:26:21 CST 2004
         - add script code to $6 in 880 and config options
         - add script orientation to $6 in 880 and config options
