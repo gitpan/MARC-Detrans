@@ -12,6 +12,11 @@ To install this module type the following:
    make test
    make install
 
+DEPENDENCIES
+
+   MARC::Record
+   XML::SAX
+
 EXAMPLES
 
 There are sample configuration files and an example driving program

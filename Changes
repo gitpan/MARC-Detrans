@@ -1,3 +1,6 @@
+v1.0   Thu Nov 18 11:43:19 CST 2004
+        - require at least 5.7.2 for XML encoding support
+
 v0.99   Tue Nov 16 22:47:16 CST 2004
         - added 'records written' to log
         - MARC::Detrans::convert() can return undef when a bad error

@@ -1,5 +1,7 @@
 use ExtUtils::MakeMaker;
 
+require v5.7.2;
+
 WriteMakefile(
     NAME		=> 'MARC::Detrans',
     VERSION_FROM	=> 'lib/MARC/Detrans.pm',
