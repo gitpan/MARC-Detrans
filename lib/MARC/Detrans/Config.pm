@@ -27,6 +27,9 @@ MARC records.
         <!-- the language we are detransliterating -->
         <language name="Russian" code="rus" />
 
+        <!-- the script that will be used -->
+        <script name="Cyrillic" code="(N" />
+
         <!-- which fields/subfields to detransliterate or copy -->
         <detrans-fields>
             <field tag="245">
@@ -153,6 +156,9 @@ MARC::Detrans::Config->mk_accessors( qw(
     names
     languageName
     languageCode
+    scriptName
+    scriptCode
+    scriptOrientation
 ) );
 
 sub _parse {
@@ -167,6 +173,9 @@ sub _parse {
     $self->names( $handler->names() );
     $self->languageName( $handler->languageName() );
     $self->languageCode( $handler->languageCode() );
+    $self->scriptName( $handler->scriptName() );
+    $self->scriptCode( $handler->scriptCode() );
+    $self->scriptOrientation( $handler->scriptOrientation() );
     $self->{lookForFields} = $handler->{lookForFields};
     $self->{detransFields} = $handler->{detransFields};
     $self->{copyFields} = $handler->{copyFields};
@@ -201,6 +210,9 @@ sub rules { return shift->{rules}; }
 sub names { return shift->{names}; }
 sub languageName { return shift->{languageName}; }
 sub languageCode { return shift->{languageCode}; }
+sub scriptName { return shift->{scriptName}; }
+sub scriptCode { return shift->{scriptCode}; }
+sub scriptOrientation { return shift->{scriptOrientation}; }
 
 sub start_element {
     my ( $self, $data ) = @_;
@@ -232,6 +244,12 @@ sub start_element {
     elsif ( $tag eq 'language' ) {
         $self->{languageName} = $data->{Attributes}{'{}name'}{Value};
         $self->{languageCode} = $data->{Attributes}{'{}code'}{Value};
+    }
+    ## script name/code
+    elsif ( $tag eq 'script' ) {
+        $self->{scriptName} = $data->{Attributes}{'{}name'}{Value};
+        $self->{scriptCode} = $data->{Attributes}{'{}code'}{Value};
+        $self->{scriptOrientation}=$data->{Attributes}{'{}orientation'}{Value};
     }
     ## start of fields to detransliterate
     elsif ( $tag eq 'detrans-fields' ) { 

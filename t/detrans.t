@@ -24,17 +24,26 @@ while ( my $record = $batch->next() ) {
     ok( $record->field( '880' ), 'found 880 fields' );
     ok( $record->field( '066' ), 'found 066 field' );
 
-    ## look at 880 and try to find original field and look for subfield
-    ## 6 in it.
+    ## examine each 880 field
     foreach my $field ( $record->field( '880' ) ) {
+
+        ## unpack the subfield 6 
         my $sub6 = $field->subfield(6);
-        my ( $tag, $count ) = split /-/, $sub6;
+        my ( $tag, $count, $script, $orientation ) = 
+            $sub6 =~ m{^(\d+)-(\d+)/(..)/(.)?};
+
+        ## verify the script code and orientation
+        is( $script, '(N', 'script code' );
+        is( $orientation, 'r', 'script orientation' );
+
+        ## look for the linked field
         my $linkedField = getLinkedField( $record, $count );
         if ( ! $linkedField ) {
             fail( "missing linked field" );
         } else {
             ok( $linkedField->tag() eq $tag, "found liked 880 field" );
         }
+
     }
 }
 

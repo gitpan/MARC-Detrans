@@ -5,7 +5,7 @@ use warnings;
 use Carp qw( croak );
 use MARC::Detrans::Config;
 
-our $VERSION = '0.95';
+our $VERSION = '0.96';
 
 =head1 NAME
 
@@ -75,6 +75,11 @@ sub new {
     croak( "must supply config parameter" ) if ! exists $args{config};
     croak( "config file doesn't exist" ) if ! -f $args{config};
     my $config = MARC::Detrans::Config->new( $args{config} );
+    ## verify a few things 
+    croak( $args{config} . ": missing code attribute in language element" )
+        if ! $config->languageCode();
+    croak( $args{config} . ": missing code attribute in script element" )
+        if ! $config->scriptCode();
     return _init( $class, $config );
 }
 
@@ -148,6 +153,8 @@ sub add880s {
     my $config = $self->{config};
     my $rules = $config->rules();
     my $names = $config->names();
+    my $scriptCode = $config->scriptCode();
+    my $scriptOrientation = $config->scriptOrientation();
     my $count = 0;
     my $edited = 0;
 
@@ -179,7 +186,8 @@ sub add880s {
                 if ( $nameData ) {
                     $self->{tallyAdd880}++;
                     $count++;
-                    add880( $r, $count, $field, $nameData );
+                    add880( $r, $count, $field, $nameData, $scriptCode,
+                        $scriptOrientation );
                     $edited = 1;
                     next FIELD;
                 }
@@ -206,7 +214,8 @@ sub add880s {
             if ( @newSubfields ) {
                 $self->{tallyAdd880}++;
                 $count++;
-                add880( $r, $count, $field, \@newSubfields );
+                add880($r, $count, $field, \@newSubfields, $scriptCode,
+                    $scriptOrientation );
                 $edited = 1;
             }
         }
@@ -244,15 +253,17 @@ sub isTranslation {
 ## tag and indicators of another field
 
 sub add880 {
-    my ( $record, $count, $field, $subfields ) = @_;
+    my ( $record, $count, $field, $subfields, $scriptCode, $orientation ) = @_;
     my $tag = $field->tag();
     my $occurrence = sprintf( '%02d', $count );
+    my $sub6 = "$tag-$occurrence/$scriptCode";
+    $sub6 .= "/$orientation" if defined $orientation;
     my $f880 = MARC::Field->new(
         '880',
         $field->indicator(1),
         $field->indicator(2),
-        6, "$tag-$occurrence",   ## subfield 6
-        @$subfields              ## the reset of the subfields
+        6 => $sub6,             ## subfield 6
+        @$subfields             ## the reset of the subfields
     );
     $record->insert_grouped_field( $f880 );
 

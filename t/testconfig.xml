@@ -3,6 +3,7 @@
 <config>
 
     <language name="Russian" code="rus" />
+    <script name="Cyrillic" code="(N" orientation="r" />
 
     <detrans-fields>
         <field tag="100">

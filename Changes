@@ -1,3 +1,8 @@
+v0.96   Tue Nov  9 21:26:21 CST 2004
+        - add script code to $6 in 880 and config options
+        - add script orientation to $6 in 880 and config options
+        - test for both
+
 v0.95   Mon Nov  8 20:48:59 CST 2004
         - fixed writing to log file in example/convert.pl
 
