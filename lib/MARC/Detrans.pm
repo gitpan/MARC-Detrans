@@ -5,7 +5,7 @@ use warnings;
 use Carp qw( croak );
 use MARC::Detrans::Config;
 
-our $VERSION = '0.8';
+our $VERSION = '0.9';
 
 =head1 NAME
 
@@ -148,7 +148,7 @@ sub add880s {
     my $config = $self->{config};
     my $rules = $config->rules();
     my $names = $config->names();
-    my %seen = ();
+    my $count = 0;
     my $edited = 0;
 
     ## see if the record is for a translation
@@ -177,7 +177,9 @@ sub add880s {
             if ( isNameField($tag) ) {
                 my $nameData = $names->convert( $field );
                 if ( $nameData ) {
-                    add880( $r, \%seen, $field, $nameData );
+                    $self->{tallyAdd880}++;
+                    $count++;
+                    add880( $r, $count, $field, $nameData );
                     $edited = 1;
                     next FIELD;
                 }
@@ -203,7 +205,8 @@ sub add880s {
 
             if ( @newSubfields ) {
                 $self->{tallyAdd880}++;
-                add880( $r, \%seen, $field, \@newSubfields );
+                $count++;
+                add880( $r, $count, $field, \@newSubfields );
                 $edited = 1;
             }
         }
@@ -241,9 +244,9 @@ sub isTranslation {
 ## tag and indicators of another field
 
 sub add880 {
-    my ( $record, $seen, $field, $subfields ) = @_;
+    my ( $record, $count, $field, $subfields ) = @_;
     my $tag = $field->tag();
-    my $occurrence = sprintf( '%02d', ++$seen->{ $tag } );
+    my $occurrence = sprintf( '%02d', $count );
     my $f880 = MARC::Field->new(
         '880',
         $field->indicator(1),
@@ -258,10 +261,13 @@ sub add880 {
     ## and replacing the old field with it
     my @subfields = map { $_->[0], $_->[1] } $field->subfields();
     unshift( @subfields, '6' => "880-$occurrence" );
-    my $new = MARC::Field->new( 
-        $tag, $field->indicator(1), $field->indicator(2),
-        '6' => "880-$occurrence", @subfields );
-    $field->replace_with( $new );
+    $field->replace_with( 
+        MARC::Field->new( 
+            $tag, 
+            $field->indicator(1), $field->indicator(2), 
+            @subfields 
+        )
+    );
 }
 
 ## private helper function for adding a 066 indicating which 

@@ -28,9 +28,23 @@ while ( my $record = $batch->next() ) {
     ## 6 in it.
     foreach my $field ( $record->field( '880' ) ) {
         my $sub6 = $field->subfield(6);
-        my ( $tag, $ocurrence ) = split /-/, $sub6;
-        my @fields = $record->field( $tag );
-        my $f = $fields[$ocurrence-1];
-        ok( $f->subfield('6'), 'found subfield 6 in original field' );
+        my ( $tag, $count ) = split /-/, $sub6;
+        my $linkedField = getLinkedField( $record, $count );
+        if ( ! $linkedField ) {
+            fail( "missing linked field" );
+        } else {
+            ok( $linkedField->tag() eq $tag, "found liked 880 field" );
+        }
+    }
+}
+
+sub getLinkedField {
+    my ($r,$count) = @_;
+    foreach my $f ( $r->fields() ) {
+        next if $f->is_control_field();
+        my $sub6 = $f->subfield('6');
+        if ( $sub6 and $sub6 eq sprintf( "880-%02d", $count ) ) {
+            return $f;
+        }
     }
 }

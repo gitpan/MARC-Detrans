@@ -1,0 +1,35 @@
+v0.9    Sat Nov  6 14:21:03 CST 2004
+        - fixed counting for linked field
+
+v0.8    Wed Nov  3 21:58:12 CST 2004
+        - original field gets an subfield 6 now
+
+v0.7    Sat Oct 23 14:25:36 CDT 2004
+        - enhanced logging in convert.pl
+        - functionality and tests for handling translations
+        - functionality and tests for handling parallel titles
+
+v0.6    Thu Oct 21 20:39:24 CDT 2004
+        - fixed ordering of 880s and the content of the subfield 6 
+
+v0.5    Wed Oct 20 10:40:42 CDT 2004
+        - fixed bug in setup of MARC::Detrans object. Needed to set errors
+          internal array. 
+
+v0.4    Fri Oct 15 09:41:18 CDT 2004
+        - added ability to define position on rules (initial, medial, final)
+          to control when a rule is activated.
+
+v0.3    Wed Oct 13 21:04:21 CDT 2004
+        - changed error() to errors() in MARC::Detrans so that multiple
+          errors can be accumulated.
+        - convert() always returns a MARC::Record object instead of returning
+          undef when an error was encountered.
+
+v0.2    Wed Oct 13 14:09:35 CDT 2004
+        - docfix in Detrans.pm (thanks Brian Cassidy)
+        - updated error messages in Detrans.pm to indicate field/subfield
+        - updated error messages emitted by convert.pl
+
+v0.1    Sun Sep 26 10:04:32 CDT 2004
+        - initial release
