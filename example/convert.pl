@@ -53,8 +53,10 @@ pod2usage( {verbose=>2} ) if ! ($config and $in and $out);
 my $detrans = MARC::Detrans->new( config => $config );
 my $batch = MARC::Batch->new( 'USMARC', $in );
 open( OUT, ">$out" );
+my $count = 0;
 
 while ( my $record = $batch->next() ) {
+    $count++;
     my $new = $detrans->convert( $record );
 
     ## make sure we got a record
@@ -63,7 +65,7 @@ while ( my $record = $batch->next() ) {
     }
     ## or else output the error
     else {
-        print STDERR $detrans->error(), "\n";
+        print STDERR "record $count: ", $detrans->error(), "\n";
     }
 }
 

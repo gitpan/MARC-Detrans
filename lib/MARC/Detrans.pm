@@ -5,7 +5,7 @@ use warnings;
 use Carp qw( croak );
 use MARC::Detrans::Config;
 
-our $VERSION = '0.1';
+our $VERSION = '0.2';
 
 =head1 NAME
 
@@ -20,7 +20,7 @@ MARC::Detrans - De-transliterate text and MARC records
     my $detrans = MARC::Detrans->new( 'config.xml' );
 
     while ( my $record = $batch->next() ) {
-        my $newRecord = $detrans->convert();
+        my $newRecord = $detrans->convert( $record );
     }
 
 =head1 DESCRIPTION
@@ -143,7 +143,8 @@ sub add880s {
                 if ($config->needsDetrans(field=>$tag,subfield=>$code)) {
                     my $new = $rules->convert( $data );
                     if ( ! defined $new ) {
-                        $self->{error} = $rules->error();
+                        $self->{error} = "field=$tag subfield=$code: " .
+                            $rules->error();
                         return;
                     }
                     push( @newSubfields, $code, $rules->convert($data) );

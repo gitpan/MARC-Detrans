@@ -1,4 +1,3 @@
-bin/detrans
 example/convert.pl
 example/config.xml
 lib/MARC/Detrans.pm
