@@ -5,7 +5,7 @@ use warnings;
 use Carp qw( croak );
 use MARC::Detrans::Config;
 
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 =head1 NAME
 
@@ -83,9 +83,10 @@ sub new {
 
 Pass a MARC::Record into convert() and you will be returned a 
 new MARC::Record with portions of it modified according to your
-configuration file. If a problem was encountered during the 
-detransliteration you will be returned undef, and the error can 
-be retrieved using the error() method.
+configuration file. 
+
+IMPORTANT: you'll probably want to call errors() afterwards to 
+see if there were any problems during the conversion.
 
 =cut
 
@@ -98,24 +99,22 @@ sub convert {
     ## check the language of the record
     my $f008 = $record->field( '008' );
     if ( ! $f008 ) { 
-        $self->{error} = "can't determine language in record: missing 008";
-        return;
+        $self->addError( "can't determine language in record: missing 008" );
+        return $record;
     }
     my $lang = substr( $f008->data(), 35, 3 );
     if ( $lang ne $config->languageCode() ) {
-        $self->{error} = "record is not correct language: $lang instead of ". 
-            $config->languageCode(); 
-        return;
+        $self->addError( "record is not correct language: $lang instead of ". 
+            $config->languageCode() ); 
+        return $record;
     }
 
     ## add 880 fields
-    return $record if $self->add880s( $record );
-    return;
+    $self->add880s( $record );
+    return $record;
 }
 
 ## internal helper for adding 880 fields to a record.
-## returns 1 if no problems were enountered and undef 
-## if there were problems.
 
 sub add880s {
     my ($self,$r) = @_;
@@ -143,9 +142,9 @@ sub add880s {
                 if ($config->needsDetrans(field=>$tag,subfield=>$code)) {
                     my $new = $rules->convert( $data );
                     if ( ! defined $new ) {
-                        $self->{error} = "field=$tag subfield=$code: " .
-                            $rules->error();
-                        return;
+                        $self->addError( "field=$tag subfield=$code: " .
+                            $rules->error() );
+                        next FIELD;
                     }
                     push( @newSubfields, $code, $rules->convert($data) );
                 }
@@ -166,8 +165,6 @@ sub add880s {
         $self->add066($r);
     }
 
-    ## return ok
-    return 1;
 }
 
 sub isNameField {
@@ -221,19 +218,25 @@ sub add066 {
     }
 }
 
-=head2 error()
+=head2 errors()
 
-Will return the latest error encountered during a call to convert(). Can
+Will return the latest errors encountered during a call to convert(). Can
 be useful for determining why a call to convert() returned undef. A side 
-effect of calling error() is that the error slot is reset.
+effect of calling errors() is that the errors storage is reset.
 
 =cut
 
-sub error {
+sub errors {
     my $self = shift;
-    my $error = $self->{error};
-    $self->{error} = undef;
-    return( $error );
+    my @errors = @{ $self->{errors} };
+    $self->{errors} = [];
+    return @errors;
+}
+
+## this really should just be used internally...hence no POD
+sub addError {
+    my ($self,$msg) = @_;
+    push( @{ $self->{errors} }, $msg );
 }
 
 =head1 AUTHORS

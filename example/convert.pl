@@ -59,14 +59,13 @@ while ( my $record = $batch->next() ) {
     $count++;
     my $new = $detrans->convert( $record );
 
-    ## make sure we got a record
-    if ( $new ) { 
-        print OUT $new->as_usmarc();
+    ## print out any errors 
+    foreach ( $detrans->errors() ) {
+        print STDERR "record $count: $_\n";
     }
-    ## or else output the error
-    else {
-        print STDERR "record $count: ", $detrans->error(), "\n";
-    }
+
+    ## output the new record
+    print OUT $new->as_usmarc();
 }
 
 
