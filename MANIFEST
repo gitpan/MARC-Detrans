@@ -8,6 +8,7 @@ lib/MARC/Detrans/Rule.pm
 lib/MARC/Detrans/Rules.pm
 Makefile.PL
 MANIFEST
+README
 t/config.t
 t/detrans.t
 t/marc.dat

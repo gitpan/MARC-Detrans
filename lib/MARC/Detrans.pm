@@ -5,7 +5,7 @@ use warnings;
 use Carp qw( croak );
 use MARC::Detrans::Config;
 
-our $VERSION = '0.5';
+our $VERSION = '0.6';
 
 =head1 NAME
 
@@ -178,7 +178,7 @@ sub isNameField {
 sub add880 {
     my ( $record, $seen, $field, $subfields ) = @_;
     my $tag = $field->tag();
-    my $occurrence = ++$seen->{ $tag };
+    my $occurrence = sprintf( '%02d', ++$seen->{ $tag } );
     my $f880 = MARC::Field->new(
         '880',
         $field->indicator(1),
@@ -186,7 +186,7 @@ sub add880 {
         6, "$tag-$occurrence",   ## subfield 6
         @$subfields              ## the reset of the subfields
     );
-    $record->append_fields( $f880 );
+    $record->insert_grouped_field( $f880 );
 }
 
 ## private helper function for adding a 066 indicating which 
@@ -214,7 +214,7 @@ sub add066 {
         $f066->replace_with( $new066 );
     } else {
         $f066 = MARC::Field->new( '066', '', '', @subfields );
-        $record->insert_fields_ordered( $f066 );
+        $record->insert_grouped_field( $f066 );
     }
 }
 
