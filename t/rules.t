@@ -26,7 +26,7 @@ is( $rules->convert('|*+'), "${esc}jX${ascii}", "convert() 5" );
 
 ## non-existant mapping
 ok( ! $rules->convert('acw'), 'non-existant mapping' );
-is( $rules->error(), 'no matching rule found for char 0x77 at position 3',
+is( $rules->error(), 'no matching rule found for "w" [0x77] at position 3',
     'non-existant mapping error message' );
 ok( ! $rules->error(), 'error message erased on retrieval' );
 

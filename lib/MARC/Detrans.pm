@@ -5,7 +5,7 @@ use warnings;
 use Carp qw( croak );
 use MARC::Detrans::Config;
 
-our $VERSION = '0.6';
+our $VERSION = '0.7';
 
 =head1 NAME
 
@@ -27,8 +27,8 @@ MARC::Detrans - De-transliterate text and MARC records
 
 MARC::Detrans is an eclectic addition to the already eclectic MARC::Record
 distribution for de-transliterating MARC::Records. What is detransliteration
-you ask? As you might have guessed it's the opposite of transliteration, which
-according to the Merriam-Webster:
+you ask? Well it's the opposite of transliteration, which according to the 
+Merriam-Webster:
 
     to represent or spell in the characters of another alphabet
 
@@ -75,8 +75,34 @@ sub new {
     croak( "must supply config parameter" ) if ! exists $args{config};
     croak( "config file doesn't exist" ) if ! -f $args{config};
     my $config = MARC::Detrans::Config->new( $args{config} );
-    my $self = { config => $config, errors => [] }; 
-    return bless $self, ref($class) || $class;
+    return _init( $class, $config );
+}
+
+=head2 newFromConfig()
+
+If you want to supply your own MARC::Detran::Config object instead of
+an XML file configuration as in new() you can use newFromConfig(). 
+It's unlikely that you'll ever need to use this method.
+
+=cut
+
+sub newFromConfig {
+    my ($class,$config) = @_;
+    croak( "must supply MARC::Detrans::Config object" )
+        if ! ref($config) or ! $config->isa( 'MARC::Detrans::Config' );
+    return _init( $class, $config );
+}
+
+## helper to initialize an object
+sub _init {
+    my ($class,$config) = @_;
+    return bless { 
+        config          => $config, 
+        errors          => [],
+        tallyAdd880     => 0,
+        tallyDetrans    => {},
+        tallyCopy       => {},
+    }, ref($class) || $class;
 }
 
 =head2 convert()
@@ -111,6 +137,7 @@ sub convert {
 
     ## add 880 fields
     $self->add880s( $record );
+
     return $record;
 }
 
@@ -124,9 +151,26 @@ sub add880s {
     my %seen = ();
     my $edited = 0;
 
+    ## see if the record is for a translation
+    ## since we'll need to skip some fields below if it is
+    my $isTranslation = isTranslation( $r );
+
     foreach my $tag ( $config->detransFields() ) {
         FIELD: foreach my $field ( $r->field($tag) ) { 
             my @newSubfields = ();
+
+            ## we don't process parallel titles
+            if ( isParallelTitle($field) ) {
+                $self->addError( "field=$tag: skipped parallel title" );
+                next FIELD;
+            }
+
+            ## we don't process 1XX and 7XX fields the record
+            ### is for a translation
+            if ( $isTranslation and $tag =~ /(1|7)\d\d/ ) {
+                $self->addError( "field=$tag: skipped because of translation" );
+                next FIELD;
+            }
     
             if ( isNameField($tag) ) {
                 my $nameData = $names->convert( $field );
@@ -146,14 +190,17 @@ sub add880s {
                             $rules->error() );
                         next FIELD;
                     }
+                    $self->{tallyDetrans}{"$tag-$code"}++;
                     push( @newSubfields, $code, $rules->convert($data) );
                 }
                 elsif ($config->needsCopy(field=>$tag,subfield=>$code)) {
+                    $self->{tallyCopy}{"$tag-$code"}++;
                     push( @newSubfields, $code, $data);
                 }
             }
 
             if ( @newSubfields ) {
+                $self->{tallyAdd880}++;
                 add880( $r, \%seen, $field, \@newSubfields );
                 $edited = 1;
             }
@@ -170,6 +217,22 @@ sub add880s {
 sub isNameField {
     my $tag = shift;
     return grep /^$tag$/, qw( 100 110 600 700 810 800 );
+}
+
+sub isParallelTitle {
+    my $field = shift;
+    return if $field->tag() ne 246;
+    return 1 if $field->indicator(2) =~ /1|5/;
+    return 1 if ( $field->subfields() )[0]->[0] eq 'i';
+    return;
+}
+
+sub isTranslation {
+    my $r = shift;
+    my $f041 = $r->field( '041' );
+    return if ! $f041;
+    return if ! $f041->subfield( 'h' );
+    return 1;
 }
 
 ## private helper function to add a single 880 based on the
@@ -239,10 +302,45 @@ sub addError {
     push( @{ $self->{errors} }, $msg );
 }
 
+=head2 stats880sAdded()
+
+Returns the total amount of 880 fields added to records so far by 
+this MARC::Detrans object.
+
+=cut
+
+sub stats880sAdded {
+    my $self = shift;
+    return $self->{tallyAdd880s};
+}
+
+=head2 statsDetransliterated()
+
+Returns a hash of stats on the field_subfield combinations that
+have been detransliterated by a MARC::Detrans object.
+
+=cut
+
+sub statsDetransliterated {
+    return %{ shift->{tallyDetrans} };
+}
+
+=head2 statsCopied()
+
+Returns a hash of stats on the field_subfield combinations that
+have been copied by a MARC::Detrans object.
+
+=cut
+
+sub statsCopied {
+    return %{ shift->{tallyCopy} };
+}
+
 =head1 AUTHORS
 
 MARC::Detrans was developed as part of a project funded by the Queens 
 Borough Public Library in New York City under the direction of Jane Jacobs. 
+It is their generosity that allowed this package to be released on CPAN.
 
 =over 4
 

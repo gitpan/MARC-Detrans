@@ -115,8 +115,8 @@ sub convert {
         ## data which doesn't map. Store the error and return asap. 
         if ( ! defined($foundRule) ) {
             $self->{error} = sprintf( 
-                "no matching rule found for char 0x%x at position %i", 
-                    ord($key), $pos+1 );
+                qq(no matching rule found for "%s" [0x%x] at position %i), 
+                    $key, ord($key), $pos+1 );
             return;
         }
         ## advance the position the amount of characters that we matched

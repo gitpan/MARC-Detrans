@@ -59,13 +59,15 @@ MARC records.
 
 =head2 new()
 
-The constructor, which you must pass a file path.
+The constructor, which you should pass the file path for the XML configuration.
+If you want to configure the MARC::Detrans::Config object manually you 
+can not pass in a path, but you ordinarily wouldn't want to do this.
 
 =cut 
 
 sub new {
     my ( $class, $file ) = @_;
-    croak( "config file doesn't exist" ) if ! -f $file;
+    croak( "config file doesn't exist" ) if $file and ! -f $file;
     my $self = bless { file => $file }, $class || $class;
     $self->_parse( $file );
     return( $self );
@@ -96,12 +98,15 @@ sub allEscapeCodes {
 =head2 detransFields() 
 
 Returns a list of fields that the configuration lists as desiring 
-de-transliteration.
+de-transliteration. If you need to you can pass in an array of
+field names you'd like to detransliterate...but normally you won't
+want to do this since the value come from the XML configuration.
 
 =cut
 
 sub detransFields {
-    my $self = shift;
+    my ($self,@fields) = @_;
+    if ( @fields ) { $self->{lookForFields} = \@fields; }
     return @{ $self->{lookForFields} };
 }
 
@@ -154,7 +159,9 @@ sub _parse {
     my $self = shift;
     my $handler = ConfigHandler->new();
     my $parser = XML::SAX::ParserFactory->parser( Handler => $handler );
-    $parser->parse_uri( $self->{ file } );
+    ## we skip parsing if we don't ahve a file to parse, which
+    ## can happen when the confiuration is being manually configured
+    $parser->parse_uri( $self->{ file } ) if $self->{ file };
     $self->rules( $handler->rules() );
     $self->names( $handler->names() );
     $self->languageName( $handler->languageName() );
