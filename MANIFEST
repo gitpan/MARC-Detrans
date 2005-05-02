@@ -1,6 +1,9 @@
 Changes
+example/bulgarian.xml
 example/convert.pl
+example/greek.xml
 example/russian.xml
+example/ukranian.xml
 lib/MARC/Detrans.pm
 lib/MARC/Detrans/Config.pm
 lib/MARC/Detrans/Name.pm

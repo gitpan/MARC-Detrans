@@ -3,7 +3,7 @@
 <config>
 
         <!-- the language we are detransliterating -->
-        <language name="Russian" code="rus" />
+        <language name="Bulgarian" code="bul" />
         <script name="Cyrillic" code="(N" />
 	<!-- which fields/subfields to detransliterate -->
         <detrans-fields>            
@@ -197,6 +197,22 @@
             <marc escape="(N">J</marc>
         </rule>
         <rule>
+            <roman>ÊU</roman>
+            <marc escape="(Q">o</marc>
+        </rule>
+        <rule>
+            <roman>Êu</roman>
+            <marc escape="(N">_</marc>
+        </rule>
+        <rule>
+            <roman>ÔU</roman>
+            <marc escape="(Q">s</marc>
+        </rule>
+        <rule>
+            <roman>Ôu</roman>
+            <marc escape="(Q">S</marc>
+        </rule>
+        <rule>
             <roman>K</roman>
             <marc escape="(N">k</marc>
         </rule>
@@ -313,20 +329,20 @@
             <marc escape="(N">^</marc>
         </rule>
         <rule>
+            <roman>Sht</roman>
+            <marc escape="(N">}</marc>
+        </rule>
+        <rule>
+            <roman>sht</roman>
+            <marc escape="(N">]</marc>
+        </rule>
+        <rule>
             <roman>Sh</roman>
             <marc escape="(N">{</marc>
         </rule>
         <rule>
             <roman>sh</roman>
             <marc escape="(N">[</marc>
-        </rule>
-        <rule>
-            <roman>Shch</roman>
-            <marc escape="(N">}</marc>
-        </rule>
-        <rule>
-            <roman>shch</roman>
-            <marc escape="(N">]</marc>
         </rule>
         <rule>
             <roman>∑</roman>
@@ -363,22 +379,6 @@
         <rule>
             <roman>Áe</roman>
             <marc escape="(N">\</marc>
-        </rule>
-        <rule>
-            <roman>ÁF</roman>
-            <marc escape="(Q">q</marc>
-        </rule>
-        <rule>
-            <roman>Áf</roman>
-            <marc escape="(Q">Q</marc>
-        </rule>
-        <rule>
-            <roman>ÁY</roman>
-            <marc escape="(Q">r</marc>
-        </rule>
-        <rule>
-            <roman>Áy</roman>
-            <marc escape="(Q">R</marc>
         </rule>
         <rule>
             <roman>ÎIÏU</roman>
@@ -598,7 +598,6 @@
             <roman>XXI</roman>
             <marc escape="(B">XXI</marc>
        </rule>
-       <!-- assorted troublesome words -->
        <rule>
             <roman>Russia</roman>
             <marc escape="(N">rOSSIQ</marc>
@@ -1024,10 +1023,6 @@
   	<name>
      		<roman>$aZinoviev, Aleksandr, $d1922-</roman>
     		<marc>$a^ESC(NzINOWXEW^ESCs, ^ESC(NaLEKSANDR^ESCs, $d1922-</marc>
-  	</name>  
-  	<name>
-     		<roman>$aZÎiÏanßkovich, MikalaÊi AlÎiÏaksandravich.</roman>
-    		<marc>$a^ESC(NzENXKOWI^, ^ESC(NnIKOLAJ^ESCs.</marc>
   	</name>
      
 </config>

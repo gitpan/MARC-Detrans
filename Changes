@@ -1,3 +1,6 @@
+v1.2    Mon May  2 15:51:16 CDT 2005
+        - added new example configuration files
+
 v1.1    Mon Jan 31 20:15:52 CST 2005
         - allow ^ESC sequence in rule <to> sections
 
