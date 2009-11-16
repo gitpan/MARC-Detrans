@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                MARC-Detrans
-version:             1.4
+version:             1.41
 abstract:            De-transliterate text and MARC records
 license:             ~
 author:              
